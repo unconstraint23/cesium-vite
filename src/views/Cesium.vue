@@ -12,29 +12,29 @@ Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOi
 onMounted(() => {
     // const viewer = new Cesium.Viewer('cesiumContainer')
     
-  //   const custom = new Cesium.ArcGisMapServerImageryProvider({
-  //   url: '//services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer'
-  // })
+    const custom = new Cesium.ArcGisMapServerImageryProvider({
+    url: '//services.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer'
+  })
   // const custom = new Cesium.BingMapsImageryProvider({
   //   url : 'https://dev.virtualearth.net',
   //   key : 'get-yours-at-https://www.bingmapsportal.com/',
   //   mapStyle : Cesium.BingMapsStyle.AERIAL});
-  const imageryProvider = new Cesium.WebMapTileServiceImageryProvider({
-    url : 'http://t0.tianditu.com/img_w/wmts?',
-    layer : 'img',
-    style : 'default',
-    format : 'tiles',
-    tileMatrixSetID : 'w',
-    // tileMatrixLabels : ['default028mm:0', 'default028mm:1', 'default028mm:2' ...],
-    maximumLevel: 18,
-    credit : new Cesium.Credit('天地图')
-});
+//   const imageryProvider = new Cesium.WebMapTileServiceImageryProvider({
+//     url : 'http://t0.tianditu.com/img_w/wmts?',
+//     layer : 'img',
+//     style : 'default',
+//     format : 'tiles',
+//     tileMatrixSetID : 'w',
+//     // tileMatrixLabels : ['default028mm:0', 'default028mm:1', 'default028mm:2' ...],
+//     maximumLevel: 18,
+//     credit : new Cesium.Credit('天地图')
+// });
   const viewer = new Cesium.Viewer('cesiumContainer', {
     // 不创建baseLayerPicker小部件
     baseLayerPicker: false,
     infoBox: false,
     // 设置图像提供的程序
-    // imageryProvider: custom,
+    imageryProvider: custom,
     // 设置cesium世界地形
     terrainProvider:Cesium.createWorldTerrain({
       requestWaterMask:true,
@@ -42,62 +42,64 @@ onMounted(() => {
     })
   })
   //添加另外一个图层
-let layers = viewer.scene.imageryLayers
-var blackMarble = layers.addImageryProvider( new Cesium.TileMapServiceImageryProvider( {
-    url : '//cesiumjs.org/tilesets/imagery/blackmarble',
-    maximumLevel : 8,
-    credit : 'Black Marble imagery courtesy NASA Earth Observatory'
-} ) );
-//设置图层的透明度
-blackMarble.alpha = 0.5;
-//设置图层的亮度
-blackMarble.brightness = 2.0;
-//添加一个图层，在特定位置绘制一个图片
-layers.addImageryProvider(new Cesium.SingleTileImageryProvider({
-    url : '/src/assets/imgs/match.jpg',
-    rectangle : Cesium.Rectangle.fromDegrees(-75,23,20,29.96)
-}));
-  //全球影像中文注记服务
-viewer.imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
-    url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg",
-    layer: "tdtAnnoLayer",
-    style: "default",
-    format: "image/jpeg",
-    tileMatrixSetID: "GoogleMapsCompatible",
-    show: false
-}));
-  viewer.imageryLayers.addImageryProvider(imageryProvider);
+// let layers = viewer.scene.imageryLayers
+// var blackMarble = layers.addImageryProvider( new Cesium.TileMapServiceImageryProvider( {
+//     url : '//cesiumjs.org/tilesets/imagery/blackmarble',
+//     maximumLevel : 8,
+//     credit : 'Black Marble imagery courtesy NASA Earth Observatory'
+// } ) );
+// //设置图层的透明度
+// blackMarble.alpha = 0.5;
+// //设置图层的亮度
+// blackMarble.brightness = 2.0;
+// //添加一个图层，在特定位置绘制一个图片
+// layers.addImageryProvider(new Cesium.SingleTileImageryProvider({
+//     url : '/src/assets/imgs/match.jpg',
+//     rectangle : Cesium.Rectangle.fromDegrees(-75,23,20,29.96)
+// }));
+//   //全球影像中文注记服务
+// viewer.imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
+//     url: "http://t0.tianditu.com/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={TileMatrix}&TileRow={TileRow}&TileCol={TileCol}&style=default.jpg",
+//     layer: "tdtAnnoLayer",
+//     style: "default",
+//     format: "image/jpeg",
+//     tileMatrixSetID: "GoogleMapsCompatible",
+//     show: false
+// }));
+//   viewer.imageryLayers.addImageryProvider(imageryProvider);
   // const buildingTileset = viewer.scene.primitives.add(Cesium.createOsmBuildings());
   viewer.camera.setView({
-    destination: Cesium.Cartesian3.fromDegrees(113.318977,23.114155,2000),
+    destination: new Cesium.Cartesian3(1332761,-4662399,4137888),
     orientation:{
-      heading: Cesium.Math.toRadians(90.0),
-      pitch: Cesium.Math.toRadians(-45),
+      heading:0.60,
+      pitch:-0.66
     }
 
     
   })
-
-  // const city = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({url:Cesium.IonResource.fromAssetId(96188)}));
+//   const layer = viewer.imageryLayers.addImageryProvider(
+//   new Cesium.IonImageryProvider({ assetId: 4 })
+// );
+  const city = viewer.scene.primitives.add(new Cesium.Cesium3DTileset({url:Cesium.IonResource.fromAssetId(96188)}));
   
   // 定义3d样式
-//   const heightStyle = new Cesium.Cesium3DTileStyle({
-//     color:{
-//       // 条件判断具体的颜色
-//       conditions:[
-//         ['${height} >= 300','rgba(45,0,75,0.5)'],
-//         ['${height} >= 200','rgb(102,71,151)'],
-//         ['${height} >= 100','rgba(170,162,204,0.5)'],
-//         ['${height} >= 50','rgba(224,226,238,0.5)'],
-//         ['${height} >= 25','rgba(252,230,200,0.5)'],
-//         ['${height} >= 10','rgba(248,176,87,0.5)'],
-//         ['${height} >= 5','rgba(198,106,11,0.5)'],
-//         ["true","rgb(127,59,8)"]
-//       ]
-//     }
-//   })
-
-//   city.style = heightStyle;
+  const heightStyle = new Cesium.Cesium3DTileStyle({
+    defines: {
+    distanceFromComplex:
+      "distance(vec2(${feature['cesium#longitude']}, ${feature['cesium#latitude']}), vec2(144.96007, -37.82249))",
+  },
+  color: {
+    conditions: [
+      ["${distanceFromComplex} > 0.010", "color('#d65c5c')"],
+      ["${distanceFromComplex} > 0.006", "color('#f58971')"],
+      ["${distanceFromComplex} > 0.002", "color('#f5af71')"],
+      ["${distanceFromComplex} > 0.0001", "color('#f5ec71')"],
+      ["true", "color('#ffffff')"],
+    ],
+  },
+  })
+  console.log(city)
+  city.style = heightStyle;
 })
 </script>
 
