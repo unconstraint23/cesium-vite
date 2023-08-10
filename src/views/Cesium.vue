@@ -41,9 +41,13 @@ onMounted(() => {
       requestVertexNormals:true,
     })
   })
+  const layer = viewer.imageryLayers.addImageryProvider(
+  new Cesium.IonImageryProvider({ assetId: 4 })
+);
+
   //添加另外一个图层
 // let layers = viewer.scene.imageryLayers
-// var blackMarble = layers.addImageryProvider( new Cesium.TileMapServiceImageryProvider( {
+// let blackMarble = layers.addImageryProvider( new Cesium.TileMapServiceImageryProvider( {
 //     url : '//cesiumjs.org/tilesets/imagery/blackmarble',
 //     maximumLevel : 8,
 //     credit : 'Black Marble imagery courtesy NASA Earth Observatory'
@@ -100,6 +104,120 @@ onMounted(() => {
   })
   console.log(city)
   city.style = heightStyle;
+  let geojsonOptions = {
+        clampToGround : true
+    };
+    // 从 GeoJson 文件加载邻域边界
+    // Data from : https://data.cityofnewyork.us/City-Government/Neighborhood-Tabulation-Areas/cpf4-rkhq
+    let neighborhoodsPromise = Cesium.GeoJsonDataSource.load('/src/assets/SampleData/sampleNeighborhoods.geojson', geojsonOptions);
+    let neighborhoods
+    neighborhoodsPromise.then(function(dataSource) {
+        // 将新数据作为实体添加到查看器
+        viewer.dataSources.add(dataSource);
+        neighborhoods = dataSource.entities;
+
+        // Get the array of entities
+        let neighborhoodEntities = dataSource.entities.values;
+        for (let i = 0; i < neighborhoodEntities.length; i++) {
+            let entity = neighborhoodEntities[i] as any;
+
+            if (Cesium.defined(entity.polygon)) {
+                // Use kml neighborhood value as entity name
+                entity.name = entity.properties!.neighborhood;
+                // Set the polygon material to a random, translucent color
+                entity.polygon.material = Cesium.Color.fromRandom({
+                    red : 0.1,
+                    maximumGreen : 0.5,
+                    minimumBlue : 0.5,
+                    alpha : 0.6
+                });
+                // 告诉多边形为地形着色。 ClassificationType.CESIUM_3D_TILE 将为 3D 图块集着色，而 ClassificationType.BOTH 将为 3d 图块和地形着色（BOTH 是默认值）
+                // Tells the polygon to color the terrain. ClassificationType.CESIUM_3D_TILE will color the 3D tileset, and ClassificationType.BOTH will color both the 3d tiles and terrain (BOTH is the default)
+                entity.polygon.classificationType = Cesium.ClassificationType.TERRAIN;
+                // 生成多边形中心
+                var polyPositions = entity.polygon.hierarchy.getValue(Cesium.JulianDate.now()).positions;
+                // 边界球
+                var polyCenter = Cesium.BoundingSphere.fromPoints(polyPositions).center;
+                // 椭球体
+                polyCenter = Cesium.Ellipsoid.WGS84.scaleToGeodeticSurface(polyCenter);
+                entity.position = polyCenter;
+                // 生成标签
+                entity.label = {
+                    text : entity.name,
+                    showBackground : true,
+                    scale : 0.6,
+                    horizontalOrigin : Cesium.HorizontalOrigin.CENTER,
+                    verticalOrigin : Cesium.VerticalOrigin.BOTTOM,
+                    distanceDisplayCondition : new Cesium.DistanceDisplayCondition(10.0, 8000.0),
+                    disableDepthTestDistance : 100.0
+                };
+            }
+        }
+    });
+    let kmlOptions = {
+        camera : viewer.scene.camera,
+        canvas : viewer.scene.canvas,
+        // 如果我们想要将几何特征（多边形、线串和线性环）固定在地面上，则为 true。
+        clampToGround : true
+    };
+    //KML文件是谷歌公司创建的一种地标性文件。
+    //用于记录某一地点、或连续地点的时间、经度、纬度、海拔等地理信息数据，供GE等有关软件使用。
+    // Load geocache points of interest from a KML file
+    // Data from : http://catalog.opendata.city/dataset/pediacities-nyc-neighborhoods/resource/91778048-3c58-449c-a3f9-365ed203e914
+    let geocachePromise = Cesium.KmlDataSource.load('/src/assets/SampleData/sampleGeocacheLocations.kml', kmlOptions);
+    geocachePromise.then((dataSource: any) => {
+        // 将新数据作为实体添加到查看器
+        viewer.dataSources.add(dataSource);
+
+        // 获取实体数组
+        let geocacheEntities = dataSource.entities.values;
+
+        for (let i = 0; i < geocacheEntities.length; i++) {
+            let entity = geocacheEntities[i];
+            if (Cesium.defined(entity.billboard)) {
+                // 调整垂直原点，使图钉位于地形上
+                entity.billboard.verticalOrigin = Cesium.VerticalOrigin.BOTTOM;
+                entity.billboard.image = '/src/assets/tagpark.png'
+                // 禁用标签以减少混乱
+                entity.label = undefined;
+                // 添加距离显示条件
+                entity.billboard.distanceDisplayCondition = new Cesium.DistanceDisplayCondition(10.0, 20000.0);
+                // 以度为单位计算纬度和经度
+                let cartographicPosition = Cesium.Cartographic.fromCartesian(entity.position.getValue(Cesium.JulianDate.now()));
+                let latitude = Cesium.Math.toDegrees(cartographicPosition.latitude);
+                let longitude = Cesium.Math.toDegrees(cartographicPosition.longitude);
+                // 修改描述
+                let description = '<table class="cesium-infoBox-defaultTable cesium-infoBox-defaultTable-lighter"><tbody>' +
+                    '<tr><th>' + "Longitude" + '</th><td>' + longitude.toFixed(5) + '</td></tr>' +
+                    '<tr><th>' + "Latitude" + '</th><td>' + latitude.toFixed(5) + '</td></tr>' +
+                    '<tr><th>' + "实时人流" + '</th><td>' + Math.floor(Math.random()*20000)  + '</td></tr>' +
+                    '<tr><th>' + "安全等级" + '</th><td>' + Math.floor(Math.random()*5)  + '</td></tr>' +
+                    '</tbody></table>';
+                entity.description = description;
+            }
+        }
+    });
+     // 从czml文件加载飞行路径
+  var dronePromise = Cesium.CzmlDataSource.load('/src/assets/SampleData/sampleFlight.czml');
+
+// 无人机实体
+let drone: any;
+dronePromise.then((dataSource) => {
+  viewer.dataSources.add(dataSource);
+  drone = dataSource.entities.getById('Aircraft/Aircraft1');
+  drone.model = {
+    uri:'/src/assets/SampleData/Models/CesiumDrone.gltf',
+    // uri:'/src/assets/SampleData/Models/ferrari2.gltf',
+    // minimumPixelSize: 128,
+    // maximumScale:1000,
+    // silhouetteColor:Cesium.Color.WHITE,
+    // silhouetteSize:2
+  }
+
+  drone.orientation = new Cesium.VelocityOrientationProperty(drone.position);
+  drone.viewFrom = new Cesium.Cartesian3(0,-30,30)
+  viewer.clock.shouldAnimate = true;
+})
 })
 </script>
 
