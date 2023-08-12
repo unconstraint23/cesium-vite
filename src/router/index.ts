@@ -4,7 +4,10 @@ const routes = [
         path: '/cesium',
          component: () => import("../views/Cesium.vue"),
     },
-    
+    {
+        path: '/shader',
+         component: () => import("../views/Shader.vue"),
+    },
     { path: '/', redirect: '/cesium' }
 
 ]
