@@ -13,8 +13,8 @@ uniform mat4 projectionMatrix;
     void main() {
         vUv = uv;
         vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-         modelPosition.z += sin((modelPosition.x + uTime) * 10.0) * 0.03;
-         modelPosition.z += sin((modelPosition.y + uTime) * 10.0) * 0.03;
+        //  modelPosition.z += sin((modelPosition.x + uTime) * 10.0) * 0.03;
+        //  modelPosition.z += sin((modelPosition.y + uTime) * 10.0) * 0.03;
         vElevation = modelPosition.z;
          gl_Position = projectionMatrix * viewMatrix * modelPosition;
     }

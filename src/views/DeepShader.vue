@@ -9,8 +9,8 @@ import { onMounted, ref } from "vue";
 
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls";
-import vertexShader from '../shader/raw/vertex.glsl?raw'
-import fragmentShader from '../shader/raw/fragment.glsl?raw'
+import vertexShader from '../shader/deep/vertex.glsl'
+import fragmentShader from '../shader/deep/fragment.glsl'
 import Ca from '@/assets/imgs/ca.jpeg'
 const containerRef = ref<any>(null);
     const axesHelper = new THREE.AxesHelper(5);
@@ -30,7 +30,7 @@ const texture = textureLoader.load(Ca);
     0.1,
     1000
   );
-  camera.position.set(0, 0, 10);
+  camera.position.set(0, 0, 5);
   scene.add(axesHelper)
   // 添加控制器
   const controls = new OrbitControls(camera, renderer.domElement);

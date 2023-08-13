@@ -8,6 +8,10 @@ const routes = [
         path: '/shader',
          component: () => import("../views/Shader.vue"),
     },
+    {
+        path: '/deepShader',
+         component: () => import("../views/DeepShader.vue"),
+    },
     { path: '/', redirect: '/cesium' }
 
 ]
