@@ -25,12 +25,12 @@ onMounted(() => {
   const textureLoader = new THREE.TextureLoader();
 const texture = textureLoader.load(Ca);
   const camera = new THREE.PerspectiveCamera(
-    75,
+    90,
     window.innerWidth / window.innerHeight,
     0.1,
     1000
   );
-  camera.position.set(0, 0, 5);
+  camera.position.set(0, 0, 2);
   scene.add(axesHelper)
   // 添加控制器
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -51,15 +51,16 @@ const texture = textureLoader.load(Ca);
       uTexture: {
         value: texture
       }
-    }
+    },
+    transparent: true,
   })
 // 创建平面
 const floor = new THREE.Mesh(
-  new THREE.PlaneGeometry(2, 1, 32, 32),
+  new THREE.PlaneGeometry(2, 2, 64, 64),
   rawShaderMaterial
 );
 
-console.log(floor);
+
 scene.add(floor);
 const clock = new THREE.Clock();
   const render = () => {
