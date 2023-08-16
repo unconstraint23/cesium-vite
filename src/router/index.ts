@@ -12,6 +12,10 @@ const routes = [
         path: '/deepShader',
          component: () => import("../views/DeepShader.vue"),
     },
+    {
+        path: '/lantern',
+         component: () => import("../views/Lantern.vue"),
+    },
     { path: '/', redirect: '/cesium' }
 
 ]
