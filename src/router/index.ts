@@ -16,6 +16,10 @@ const routes = [
         path: '/lantern',
          component: () => import("../views/Lantern.vue"),
     },
+    {
+        path: '/water',
+         component: () => import("../views/Water.vue"),
+    },
     { path: '/', redirect: '/cesium' }
 
 ]
