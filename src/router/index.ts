@@ -17,8 +17,16 @@ const routes = [
          component: () => import("../views/Lantern.vue"),
     },
     {
+        path: '/fireWork',
+         component: () => import("../views/FireWork.vue"),
+    },
+    {
         path: '/water',
          component: () => import("../views/Water.vue"),
+    },
+    {
+        path: '/particle',
+         component: () => import("../views/Particle.vue"),
     },
     { path: '/', redirect: '/cesium' }
 
