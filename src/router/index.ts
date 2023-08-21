@@ -9,6 +9,10 @@ const routes = [
          component: () => import("../views/Shader.vue"),
     },
     {
+        path: '/meshShader',
+         component: () => import("../views/MeshShader.vue"),
+    },
+    {
         path: '/deepShader',
          component: () => import("../views/DeepShader.vue"),
     },
