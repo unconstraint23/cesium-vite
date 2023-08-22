@@ -41,10 +41,7 @@ onMounted(() => {
     value:0
   }
 }
-  // 加载模型纹理
-  const modelTexture = textureLoader.load('/src/assets/imgs/color.jpg');
-  // 加载模型的法向纹理
-  const normalTexture = textureLoader.load('/src/assets/imgs/normal.jpg')
+ 
 
  
 
@@ -57,9 +54,9 @@ onMounted(() => {
     75,
     window.innerWidth / window.innerHeight,
     0.1,
-    1000
+    50
   );
-  camera.position.set(0, 0, 10);
+  camera.position.set(0, 0, 5);
   scene.add(axesHelper)
   // 添加控制器
   const controls = new OrbitControls(camera, renderer.domElement);
@@ -79,7 +76,7 @@ const envMapTexture = cubeTextureLoader.load([
 
 const directionLight = new THREE.DirectionalLight('#ffffff',1);
 directionLight.castShadow = true;
-directionLight.position.set(0,0,100)
+directionLight.position.set(0,0,50)
 scene.add(directionLight)
 
 
@@ -90,8 +87,7 @@ scene.background = envMapTexture;
 const gltfLoader = new GLTFLoader();
 
 gltfLoader.load('/src/assets/model/gltf/DamagedHelmet.gltf',(gltf: any)=>{
-  console.log(gltf)
-  // scene.add(gltf.scene)
+
   const mesh = gltf.scene.children[0];
   
   
@@ -188,6 +184,52 @@ gui.add(colorParams,'b').min(-1).max(1).step(0.01).onChange((value: any)=>{
   shaderPass.uniforms.uColor.value.b = value;
 })
 
+
+const normalTexture = textureLoader.load('/src/assets/imgs/interfaceNormalMap.png');
+
+const techPass = new ShaderPass({
+  uniforms:{
+    tDiffuse:{
+      value:null
+    },
+    uNormalMap:{
+      value:null
+    },
+    uTime:{
+      value:0
+    }
+  },
+  vertexShader:`
+    varying vec2 vUv;
+    void main(){
+      vUv = uv;
+      gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0);
+    }
+  `,
+  fragmentShader:`
+    varying vec2 vUv;
+    uniform sampler2D tDiffuse;
+    uniform sampler2D uNormalMap;
+    uniform float uTime;
+    void main(){
+
+      vec2 newUv = vUv;
+      newUv += sin(newUv.x*10.0+uTime*0.5)*0.03;
+
+      vec4 color = texture2D(tDiffuse,newUv);
+      // gl_FragColor = vec4(vUv,0.0,1.0);
+      vec4 normalColor = texture2D(uNormalMap,vUv);
+      // 设置光线的角度
+      vec3 lightDirection = normalize(vec3(-5,5,2)) ;
+
+      float lightness = clamp(dot(normalColor.xyz,lightDirection),0.0,1.0) ;
+      color.xyz+=lightness;
+      gl_FragColor = color;
+    }
+  `
+})
+techPass.material.uniforms.uNormalMap.value = normalTexture;
+effectComposer.addPass(techPass);
 const clock = new THREE.Clock();
 renderer.shadowMap.enabled = true;
   const render = () => {
@@ -197,6 +239,8 @@ renderer.shadowMap.enabled = true;
     renderer.render(scene, camera);
     controls.update();
     requestAnimationFrame(render);
+    techPass.material.uniforms.uTime.value = elapsedTime;
+  effectComposer.render()
   };
   window.addEventListener("resize", () => {
     renderer.setSize(window.innerWidth, window.innerHeight);
