@@ -17,6 +17,14 @@ const routes = [
          component: () => import("../views/Effect.vue"),
     },
     {
+        path: '/css',
+         component: () => import("../views/Css2D.vue"),
+    },
+    {
+        path: '/curve',
+         component: () => import("../views/Curve.vue"),
+    },
+    {
         path: '/deepShader',
          component: () => import("../views/DeepShader.vue"),
     },
